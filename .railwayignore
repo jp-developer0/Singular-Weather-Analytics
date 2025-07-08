@@ -1,0 +1,32 @@
+# Development files
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Generated files (will be created in production)
+weather_data.csv
+static/charts/*.png
+output.png
+
+# Development tools
+.vscode/
+.idea/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+
+# Test files
+test_*.py
+*_test.py 
