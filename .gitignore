@@ -57,4 +57,11 @@ config.local.py
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp
+
+# Generated data files
+weather_data.csv
+
+# Generated chart images
+static/charts/*.png
+output.png 

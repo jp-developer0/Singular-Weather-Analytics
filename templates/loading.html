@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Loading - Singular Weather Analytics{% endblock %}
+
+{% block extra_css %}
+<meta http-equiv="refresh" content="3;url=/">
+{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="header">
+        <h1>🔄 Updating Weather Data</h1>
+        <p class="loading">Please wait while we fetch fresh weather data...</p>
+        <p>You will be redirected to the dashboard shortly.</p>
+    </div>
+    
+    <div class="actions">
+        <a href="/" class="btn">🏠 Go to Dashboard</a>
+    </div>
+</div>
+{% endblock %} 

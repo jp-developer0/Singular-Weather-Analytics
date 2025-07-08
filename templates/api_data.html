@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}API Data - Singular Weather Analytics{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="header">
+        <h1>🌤️ Singular Weather Analytics</h1>
+        <h2>📋 Weather Data API</h2>
+    </div>
+    
+    <div class="actions">
+        <a href="/" class="btn back">⬅️ Back to Dashboard</a>
+        <a href="/api/data/raw" class="btn api" target="_blank">🔗 Raw JSON API</a>
+        <a href="/download/csv" class="btn">💾 Download CSV</a>
+    </div>
+    
+    <div class="api-info">
+        <h3>📡 API Information</h3>
+        <p><strong>Endpoint:</strong> <code>/api/data/raw</code> - Raw JSON data for programmatic access</p>
+        {% if last_update_time %}
+        <p><strong>Last Updated:</strong> {{ last_update_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        {% endif %}
+        <p><strong>Total Cities:</strong> {{ total_cities }} cities</p>
+    </div>
+    
+    <div class="data-container">
+        <h3>🗂️ Formatted Weather Data</h3>
+        {{ data_table|safe }}
+    </div>
+    
+    <div class="actions">
+        <p><strong>Quick Navigation:</strong></p>
+        <a href="/charts/temperature_comparison" class="btn">📊 Temperature Charts</a>
+        <a href="/charts/humidity_wind_analysis" class="btn">💨 Humidity & Wind</a>
+        <a href="/charts/comprehensive_dashboard" class="btn">🎯 Dashboard</a>
+    </div>
+    
+    <div class="footer">
+        <p>🚀 Powered by Singular Analytics Platform | Real-time Weather Intelligence</p>
+    </div>
+</div>
+{% endblock %} 

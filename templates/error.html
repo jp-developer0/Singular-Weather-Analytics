@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Loading - Singular Weather Analytics{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="header">
+        <h1>🌤️ Singular Weather Analytics</h1>
+        <p class="error">Weather data is currently being loaded. Please refresh in a moment.</p>
+    </div>
+    
+    <div class="actions">
+        <a href="/update" class="btn">🔄 Refresh Data</a>
+        <a href="/" class="btn secondary">🔄 Reload Page</a>
+    </div>
+</div>
+{% endblock %} 

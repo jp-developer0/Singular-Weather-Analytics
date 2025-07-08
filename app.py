@@ -107,233 +107,17 @@ async def homepage(request: Request):
     Homepage with weather analytics dashboard
     """
     if cached_weather_data is None:
-        return HTMLResponse("""
-        <html>
-        <head>
-            <title>Singular Weather Analytics</title>
-            <link rel="icon" type="image/svg+xml" href="/favicon.ico">
-            <style>
-                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-                .error { color: #e74c3c; }
-            </style>
-        </head>
-        <body>
-            <h1>🌤️ Singular Weather Analytics</h1>
-            <p class="error">Weather data is currently being loaded. Please refresh in a moment.</p>
-            <a href="/update">Refresh Data</a>
-        </body>
-        </html>
-        """)
+        return templates.TemplateResponse("error.html", {"request": request})
     
-    # Generate HTML dashboard
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Singular Weather Analytics Dashboard</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" type="image/svg+xml" href="/favicon.ico">
-        <style>
-            body {{
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                margin: 0;
-                padding: 0;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: #333;
-            }}
-            .container {{
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 20px;
-            }}
-            .header {{
-                text-align: center;
-                color: white;
-                margin-bottom: 30px;
-            }}
-            .header h1 {{
-                font-size: 2.5em;
-                margin-bottom: 10px;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            }}
-            .stats-grid {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
-            }}
-            .stat-card {{
-                background: white;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                text-align: center;
-            }}
-            .stat-value {{
-                font-size: 2em;
-                font-weight: bold;
-                color: #667eea;
-            }}
-            .data-table {{
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                margin-bottom: 30px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                overflow-x: auto;
-            }}
-            table {{
-                width: 100%;
-                border-collapse: collapse;
-            }}
-            th, td {{
-                padding: 12px;
-                text-align: left;
-                border-bottom: 1px solid #ddd;
-            }}
-            th {{
-                background-color: #f8f9fa;
-                font-weight: bold;
-            }}
-            .actions {{
-                text-align: center;
-                margin: 30px 0;
-            }}
-            .btn {{
-                display: inline-block;
-                padding: 12px 24px;
-                margin: 0 10px;
-                background: #667eea;
-                color: white;
-                text-decoration: none;
-                border-radius: 5px;
-                font-weight: bold;
-                transition: background 0.3s;
-            }}
-            .btn:hover {{
-                background: #5a6fd8;
-            }}
-            .btn.secondary {{
-                background: #6c757d;
-            }}
-            .btn.secondary:hover {{
-                background: #5a6268;
-            }}
-            .charts-section {{
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                margin-bottom: 30px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            }}
-            .chart-grid {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 20px;
-            }}
-            .chart-link {{
-                display: block;
-                text-align: center;
-                padding: 20px;
-                border: 2px dashed #ddd;
-                border-radius: 10px;
-                text-decoration: none;
-                color: #667eea;
-                font-weight: bold;
-                transition: all 0.3s;
-            }}
-            .chart-link:hover {{
-                border-color: #667eea;
-                background: #f8f9fa;
-            }}
-            .footer {{
-                text-align: center;
-                color: white;
-                margin-top: 40px;
-                padding: 20px;
-                font-size: 0.9em;
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>🌤️ Singular Weather Analytics</h1>
-                <p>Global Weather Intelligence Dashboard</p>
-                <p>Last Updated: {last_update_time.strftime('%Y-%m-%d %H:%M:%S') if last_update_time else 'Unknown'}</p>
-            </div>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">{cached_insights['total_cities']}</div>
-                    <div>Cities Analyzed</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{cached_insights['temperature_stats']['avg_temperature_c']}°C</div>
-                    <div>Average Temperature</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{cached_insights['humidity_stats']['avg_humidity']}%</div>
-                    <div>Average Humidity</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{cached_insights['wind_stats']['avg_wind_speed_mph']} mph</div>
-                    <div>Average Wind Speed</div>
-                </div>
-            </div>
-            
-            <div class="data-table">
-                <h2>📊 Weather Data Summary</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>City</th>
-                            <th>Temperature (°C)</th>
-                            <th>Temperature (°F)</th>
-                            <th>Humidity (%)</th>
-                            <th>Wind Speed (m/s)</th>
-                            <th>Wind Speed (mph)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {_generate_table_rows(cached_weather_data)}
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="charts-section">
-                <h2>📈 Data Visualizations</h2>
-                <div class="chart-grid">
-                    <a href="/charts/temperature_comparison" class="chart-link">
-                        📊 Temperature Comparison
-                    </a>
-                    <a href="/charts/humidity_wind_analysis" class="chart-link">
-                        💨 Humidity & Wind Analysis
-                    </a>
-                    <a href="/charts/comprehensive_dashboard" class="chart-link">
-                        🎯 Comprehensive Dashboard
-                    </a>
-                </div>
-            </div>
-            
-            <div class="actions">
-                <a href="/api/data" class="btn">📋 View JSON Data</a>
-                <a href="/download/csv" class="btn">💾 Download CSV</a>
-                <a href="/update" class="btn secondary">🔄 Refresh Data</a>
-                <a href="/docs" class="btn secondary">📚 API Documentation</a>
-            </div>
-            
-            <div class="footer">
-                <p>🚀 Powered by Singular Analytics Platform | Built with FastAPI, Pandas & Python</p>
-                <p>Professional weather data collection and business intelligence</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
+    # Generate table rows for template
+    table_rows = _generate_table_rows(cached_weather_data)
     
-    return HTMLResponse(html_content)
+    return templates.TemplateResponse("dashboard.html", {
+        "request": request,
+        "insights": cached_insights,
+        "last_update_time": last_update_time,
+        "table_rows": table_rows
+    })
 
 def _generate_table_rows(df: pd.DataFrame) -> str:
     """Generate HTML table rows from DataFrame"""
@@ -356,7 +140,7 @@ def _generate_table_rows(df: pd.DataFrame) -> str:
     return "".join(rows)
 
 @app.get("/api/data")
-async def get_weather_data_page():
+async def get_weather_data_page(request: Request):
     """
     Weather data viewer page with navigation
     """
@@ -404,198 +188,12 @@ async def get_weather_data_page():
     
     data_table = generate_json_table(weather_data, "Weather Data")
     
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-         <head>
-         <meta charset="UTF-8">
-         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-         <title>📋 Weather Data API - Singular Weather Analytics</title>
-         <link rel="icon" type="image/svg+xml" href="/favicon.ico">
-        <style>
-            * {{
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }}
-            body {{
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                padding: 20px;
-                color: #333;
-            }}
-            .container {{
-                max-width: 1400px;
-                margin: 0 auto;
-                background: rgba(255, 255, 255, 0.95);
-                border-radius: 15px;
-                padding: 30px;
-                box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            }}
-            .header {{
-                text-align: center;
-                margin-bottom: 30px;
-            }}
-            .header h1 {{
-                color: #667eea;
-                font-size: 2.5em;
-                margin-bottom: 10px;
-            }}
-            .navigation {{
-                margin-bottom: 30px;
-                text-align: center;
-            }}
-            .btn {{
-                display: inline-block;
-                padding: 12px 24px;
-                margin: 0 10px;
-                background: #667eea;
-                color: white;
-                text-decoration: none;
-                border-radius: 8px;
-                font-weight: bold;
-                transition: all 0.3s ease;
-                border: none;
-                cursor: pointer;
-            }}
-            .btn:hover {{
-                background: #5a6fd8;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            }}
-            .btn.back {{
-                background: #6c757d;
-            }}
-            .btn.back:hover {{
-                background: #5a6268;
-                box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-            }}
-            .btn.api {{
-                background: #28a745;
-            }}
-            .btn.api:hover {{
-                background: #218838;
-                box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-            }}
-            .data-container {{
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                margin-bottom: 30px;
-                overflow-x: auto;
-            }}
-            .json-table {{
-                width: 100%;
-                border-collapse: collapse;
-                margin: 10px 0;
-            }}
-            .json-table td {{
-                padding: 8px 12px;
-                border: 1px solid #ddd;
-                vertical-align: top;
-            }}
-            .json-table .key {{
-                background: #f8f9fa;
-                font-weight: bold;
-                width: 200px;
-                color: #495057;
-            }}
-            .json-table .value {{
-                background: white;
-                font-family: 'Courier New', monospace;
-                color: #212529;
-            }}
-            .data-table {{
-                width: 100%;
-                border-collapse: collapse;
-                margin: 10px 0;
-                font-size: 0.9em;
-            }}
-            .data-table th, .data-table td {{
-                padding: 8px 12px;
-                border: 1px solid #ddd;
-                text-align: left;
-            }}
-            .data-table th {{
-                background: #667eea;
-                color: white;
-                font-weight: bold;
-            }}
-            .data-table tr:nth-child(even) {{
-                background: #f8f9fa;
-            }}
-            .data-table tr:hover {{
-                background: #e3f2fd;
-            }}
-            .api-info {{
-                background: #e7f3ff;
-                border: 1px solid #b3d9ff;
-                border-radius: 8px;
-                padding: 15px;
-                margin-bottom: 20px;
-            }}
-            .api-info h3 {{
-                color: #0066cc;
-                margin-bottom: 10px;
-            }}
-            .api-info code {{
-                background: #f1f1f1;
-                padding: 2px 6px;
-                border-radius: 3px;
-                font-family: 'Courier New', monospace;
-            }}
-            .footer {{
-                text-align: center;
-                color: #666;
-                margin-top: 30px;
-                padding: 20px;
-                font-size: 0.9em;
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>🌤️ Singular Weather Analytics</h1>
-                <h2>📋 Weather Data API</h2>
-            </div>
-            
-            <div class="navigation">
-                <a href="/" class="btn back">⬅️ Back to Dashboard</a>
-                <a href="/api/data/raw" class="btn api" target="_blank">🔗 Raw JSON API</a>
-                <a href="/download/csv" class="btn">💾 Download CSV</a>
-            </div>
-            
-            <div class="api-info">
-                <h3>📡 API Information</h3>
-                <p><strong>Endpoint:</strong> <code>/api/data/raw</code> - Raw JSON data for programmatic access</p>
-                <p><strong>Last Updated:</strong> {last_update_time.strftime('%Y-%m-%d %H:%M:%S') if last_update_time else 'Unknown'}</p>
-                <p><strong>Total Cities:</strong> {len(cached_weather_data)} cities</p>
-            </div>
-            
-            <div class="data-container">
-                <h3>🗂️ Formatted Weather Data</h3>
-                {data_table}
-            </div>
-            
-            <div class="navigation">
-                <p><strong>Quick Navigation:</strong></p>
-                <a href="/charts/temperature_comparison" class="btn">📊 Temperature Charts</a>
-                <a href="/charts/humidity_wind_analysis" class="btn">💨 Humidity & Wind</a>
-                <a href="/charts/comprehensive_dashboard" class="btn">🎯 Dashboard</a>
-            </div>
-            
-            <div class="footer">
-                <p>🚀 Powered by Singular Analytics Platform | Real-time Weather Intelligence</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    
-    return HTMLResponse(html_content)
+    return templates.TemplateResponse("api_data.html", {
+        "request": request,
+        "last_update_time": last_update_time,
+        "total_cities": len(cached_weather_data),
+        "data_table": data_table
+    })
 
 @app.get("/api/data/raw")
 async def get_weather_data_raw():
@@ -623,7 +221,7 @@ async def get_weather_insights():
     return cached_insights
 
 @app.get("/charts/{chart_name}")
-async def get_chart(chart_name: str):
+async def get_chart(chart_name: str, request: Request):
     """
     Serve weather visualization charts with navigation
     """
@@ -644,133 +242,11 @@ async def get_chart(chart_name: str):
     
     chart_title = chart_titles.get(chart_name, "📈 Weather Chart")
     
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{chart_title} - Singular Weather Analytics</title>
-        <link rel="icon" type="image/svg+xml" href="/favicon.ico">
-        <style>
-            * {{
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }}
-            body {{
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                padding: 20px;
-                color: #333;
-            }}
-            .container {{
-                max-width: 1200px;
-                margin: 0 auto;
-                background: rgba(255, 255, 255, 0.95);
-                border-radius: 15px;
-                padding: 30px;
-                box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            }}
-            .header {{
-                text-align: center;
-                margin-bottom: 30px;
-            }}
-            .header h1 {{
-                color: #667eea;
-                font-size: 2.5em;
-                margin-bottom: 10px;
-            }}
-            .navigation {{
-                margin-bottom: 30px;
-                text-align: center;
-            }}
-            .btn {{
-                display: inline-block;
-                padding: 12px 24px;
-                margin: 0 10px;
-                background: #667eea;
-                color: white;
-                text-decoration: none;
-                border-radius: 8px;
-                font-weight: bold;
-                transition: all 0.3s ease;
-                border: none;
-                cursor: pointer;
-            }}
-            .btn:hover {{
-                background: #5a6fd8;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            }}
-            .btn.back {{
-                background: #6c757d;
-            }}
-            .btn.back:hover {{
-                background: #5a6268;
-                box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-            }}
-            .chart-container {{
-                text-align: center;
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                margin-bottom: 30px;
-            }}
-            .chart-image {{
-                max-width: 100%;
-                height: auto;
-                border-radius: 8px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            }}
-            .chart-actions {{
-                margin-top: 20px;
-                text-align: center;
-            }}
-            .footer {{
-                text-align: center;
-                color: #666;
-                margin-top: 30px;
-                padding: 20px;
-                font-size: 0.9em;
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>🌤️ Singular Weather Analytics</h1>
-                <h2>{chart_title}</h2>
-            </div>
-            
-            <div class="navigation">
-                <a href="/" class="btn back">⬅️ Back to Dashboard</a>
-                <a href="/api/data" class="btn">📋 View Data</a>
-                <a href="/download/csv" class="btn">💾 Download CSV</a>
-            </div>
-            
-            <div class="chart-container">
-                <img src="/charts/raw/{chart_name}" alt="{chart_title}" class="chart-image">
-            </div>
-            
-            <div class="chart-actions">
-                <p><strong>Quick Navigation:</strong></p>
-                <a href="/charts/temperature_comparison" class="btn">📊 Temperature</a>
-                <a href="/charts/humidity_wind_analysis" class="btn">💨 Humidity & Wind</a>
-                <a href="/charts/comprehensive_dashboard" class="btn">🎯 Dashboard</a>
-            </div>
-            
-            <div class="footer">
-                <p>🚀 Powered by Singular Analytics Platform | Real-time Weather Intelligence</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    
-    return HTMLResponse(html_content)
+    return templates.TemplateResponse("chart_view.html", {
+        "request": request,
+        "chart_name": chart_name,
+        "chart_title": chart_title
+    })
 
 @app.get("/charts/raw/{chart_name}")
 async def get_raw_chart(chart_name: str):
@@ -817,32 +293,13 @@ async def update_data(background_tasks: BackgroundTasks):
     })
 
 @app.get("/update")
-async def update_data_get(background_tasks: BackgroundTasks):
+async def update_data_get(background_tasks: BackgroundTasks, request: Request):
     """
     GET endpoint for updating data (redirects to homepage)
     """
     background_tasks.add_task(update_weather_data)
     
-    html_content = """
-    <html>
-    <head>
-        <title>Updating Weather Data</title>
-        <meta http-equiv="refresh" content="3;url=/">
-        <link rel="icon" type="image/svg+xml" href="/favicon.ico">
-        <style>
-            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-            .loading { color: #667eea; font-size: 1.2em; }
-        </style>
-    </head>
-    <body>
-        <h1>🔄 Updating Weather Data</h1>
-        <p class="loading">Please wait while we fetch fresh weather data...</p>
-        <p>You will be redirected to the dashboard shortly.</p>
-    </body>
-    </html>
-    """
-    
-    return HTMLResponse(html_content)
+    return templates.TemplateResponse("loading.html", {"request": request})
 
 @app.get("/health")
 async def health_check():

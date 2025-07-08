@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Singular Weather Analytics{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>🌤️ Singular Weather Analytics</h1>
+    <p>Global Weather Intelligence Dashboard</p>
+    {% if last_update_time %}
+    <p>Last Updated: {{ last_update_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+    {% endif %}
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ insights.total_cities }}</div>
+        <div>Cities Analyzed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ insights.temperature_stats.avg_temperature_c }}°C</div>
+        <div>Average Temperature</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ insights.humidity_stats.avg_humidity }}%</div>
+        <div>Average Humidity</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ insights.wind_stats.avg_wind_speed_mph }} mph</div>
+        <div>Average Wind Speed</div>
+    </div>
+</div>
+
+<div class="data-table">
+    <h2>📊 Weather Data Summary</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>City</th>
+                <th>Temperature (°C)</th>
+                <th>Temperature (°F)</th>
+                <th>Humidity (%)</th>
+                <th>Wind Speed (m/s)</th>
+                <th>Wind Speed (mph)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ table_rows|safe }}
+        </tbody>
+    </table>
+</div>
+
+<div class="charts-section">
+    <h2>📈 Data Visualizations</h2>
+    <div class="chart-grid">
+        <a href="/charts/temperature_comparison" class="chart-link">
+            📊 Temperature Comparison
+        </a>
+        <a href="/charts/humidity_wind_analysis" class="chart-link">
+            💨 Humidity & Wind Analysis
+        </a>
+        <a href="/charts/comprehensive_dashboard" class="chart-link">
+            🎯 Comprehensive Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="actions">
+    <a href="/api/data" class="btn">📋 View JSON Data</a>
+    <a href="/download/csv" class="btn">💾 Download CSV</a>
+    <a href="/update" class="btn secondary">🔄 Refresh Data</a>
+    <a href="/docs" class="btn secondary">📚 API Documentation</a>
+</div>
+
+<div class="footer">
+    <p>🚀 Powered by Singular Analytics Platform | Built with FastAPI, Pandas & Python</p>
+    <p>Professional weather data collection and business intelligence</p>
+</div>
+{% endblock %} 

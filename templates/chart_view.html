@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ chart_title }} - Singular Weather Analytics{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="header">
+        <h1>🌤️ Singular Weather Analytics</h1>
+        <h2>{{ chart_title }}</h2>
+    </div>
+    
+    <div class="actions">
+        <a href="/" class="btn back">⬅️ Back to Dashboard</a>
+        <a href="/api/data" class="btn">📋 View Data</a>
+        <a href="/download/csv" class="btn">💾 Download CSV</a>
+    </div>
+    
+    <div class="chart-container">
+        <img src="/charts/raw/{{ chart_name }}" alt="{{ chart_title }}" class="chart-image">
+    </div>
+    
+    <div class="actions">
+        <p><strong>Quick Navigation:</strong></p>
+        <a href="/charts/temperature_comparison" class="btn">📊 Temperature</a>
+        <a href="/charts/humidity_wind_analysis" class="btn">💨 Humidity & Wind</a>
+        <a href="/charts/comprehensive_dashboard" class="btn">🎯 Dashboard</a>
+    </div>
+    
+    <div class="footer">
+        <p>🚀 Powered by Singular Analytics Platform | Real-time Weather Intelligence</p>
+    </div>
+</div>
+{% endblock %} 
