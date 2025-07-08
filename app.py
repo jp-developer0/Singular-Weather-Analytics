@@ -354,9 +354,250 @@ def _generate_table_rows(df: pd.DataFrame) -> str:
     return "".join(rows)
 
 @app.get("/api/data")
-async def get_weather_data():
+async def get_weather_data_page():
     """
-    API endpoint to get current weather data as JSON
+    Weather data viewer page with navigation
+    """
+    if cached_weather_data is None:
+        raise HTTPException(status_code=503, detail="Weather data not available")
+    
+    # Generate formatted data table
+    def generate_json_table(data, title):
+        if isinstance(data, dict):
+            rows = ""
+            for key, value in data.items():
+                if isinstance(value, dict):
+                    nested_table = generate_json_table(value, key)
+                    rows += f"<tr><td class='key'>{key}</td><td>{nested_table}</td></tr>"
+                elif isinstance(value, list) and len(value) > 0 and isinstance(value[0], dict):
+                    # Table for list of objects
+                    if key == "data":  # Main weather data
+                        table_html = "<table class='data-table'><thead><tr>"
+                        if value:
+                            for col in value[0].keys():
+                                table_html += f"<th>{col}</th>"
+                            table_html += "</tr></thead><tbody>"
+                            for row in value:
+                                table_html += "<tr>"
+                                for col_val in row.values():
+                                    formatted_val = f"{col_val:.2f}" if isinstance(col_val, float) else str(col_val)
+                                    table_html += f"<td>{formatted_val}</td>"
+                                table_html += "</tr>"
+                            table_html += "</tbody></table>"
+                        rows += f"<tr><td class='key'>{key}</td><td>{table_html}</td></tr>"
+                    else:
+                        rows += f"<tr><td class='key'>{key}</td><td class='value'>{str(value)}</td></tr>"
+                else:
+                    formatted_value = f"{value:.2f}" if isinstance(value, float) else str(value)
+                    rows += f"<tr><td class='key'>{key}</td><td class='value'>{formatted_value}</td></tr>"
+            return f"<table class='json-table'><tbody>{rows}</tbody></table>"
+        return str(data)
+    
+    weather_data = {
+        "data": cached_weather_data.to_dict('records'),
+        "insights": cached_insights,
+        "last_updated": last_update_time.isoformat() if last_update_time else None,
+        "total_cities": len(cached_weather_data)
+    }
+    
+    data_table = generate_json_table(weather_data, "Weather Data")
+    
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>📋 Weather Data API - Singular Weather Analytics</title>
+        <style>
+            * {{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }}
+            body {{
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                max-width: 1400px;
+                margin: 0 auto;
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 15px;
+                padding: 30px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            }}
+            .header {{
+                text-align: center;
+                margin-bottom: 30px;
+            }}
+            .header h1 {{
+                color: #667eea;
+                font-size: 2.5em;
+                margin-bottom: 10px;
+            }}
+            .navigation {{
+                margin-bottom: 30px;
+                text-align: center;
+            }}
+            .btn {{
+                display: inline-block;
+                padding: 12px 24px;
+                margin: 0 10px;
+                background: #667eea;
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: bold;
+                transition: all 0.3s ease;
+                border: none;
+                cursor: pointer;
+            }}
+            .btn:hover {{
+                background: #5a6fd8;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            }}
+            .btn.back {{
+                background: #6c757d;
+            }}
+            .btn.back:hover {{
+                background: #5a6268;
+                box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            }}
+            .btn.api {{
+                background: #28a745;
+            }}
+            .btn.api:hover {{
+                background: #218838;
+                box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            }}
+            .data-container {{
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                margin-bottom: 30px;
+                overflow-x: auto;
+            }}
+            .json-table {{
+                width: 100%;
+                border-collapse: collapse;
+                margin: 10px 0;
+            }}
+            .json-table td {{
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                vertical-align: top;
+            }}
+            .json-table .key {{
+                background: #f8f9fa;
+                font-weight: bold;
+                width: 200px;
+                color: #495057;
+            }}
+            .json-table .value {{
+                background: white;
+                font-family: 'Courier New', monospace;
+                color: #212529;
+            }}
+            .data-table {{
+                width: 100%;
+                border-collapse: collapse;
+                margin: 10px 0;
+                font-size: 0.9em;
+            }}
+            .data-table th, .data-table td {{
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                text-align: left;
+            }}
+            .data-table th {{
+                background: #667eea;
+                color: white;
+                font-weight: bold;
+            }}
+            .data-table tr:nth-child(even) {{
+                background: #f8f9fa;
+            }}
+            .data-table tr:hover {{
+                background: #e3f2fd;
+            }}
+            .api-info {{
+                background: #e7f3ff;
+                border: 1px solid #b3d9ff;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }}
+            .api-info h3 {{
+                color: #0066cc;
+                margin-bottom: 10px;
+            }}
+            .api-info code {{
+                background: #f1f1f1;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-family: 'Courier New', monospace;
+            }}
+            .footer {{
+                text-align: center;
+                color: #666;
+                margin-top: 30px;
+                padding: 20px;
+                font-size: 0.9em;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🌤️ Singular Weather Analytics</h1>
+                <h2>📋 Weather Data API</h2>
+            </div>
+            
+            <div class="navigation">
+                <a href="/" class="btn back">⬅️ Back to Dashboard</a>
+                <a href="/api/data/raw" class="btn api" target="_blank">🔗 Raw JSON API</a>
+                <a href="/download/csv" class="btn">💾 Download CSV</a>
+            </div>
+            
+            <div class="api-info">
+                <h3>📡 API Information</h3>
+                <p><strong>Endpoint:</strong> <code>/api/data/raw</code> - Raw JSON data for programmatic access</p>
+                <p><strong>Last Updated:</strong> {last_update_time.strftime('%Y-%m-%d %H:%M:%S') if last_update_time else 'Unknown'}</p>
+                <p><strong>Total Cities:</strong> {len(cached_weather_data)} cities</p>
+            </div>
+            
+            <div class="data-container">
+                <h3>🗂️ Formatted Weather Data</h3>
+                {data_table}
+            </div>
+            
+            <div class="navigation">
+                <p><strong>Quick Navigation:</strong></p>
+                <a href="/charts/temperature_comparison" class="btn">📊 Temperature Charts</a>
+                <a href="/charts/humidity_wind_analysis" class="btn">💨 Humidity & Wind</a>
+                <a href="/charts/comprehensive_dashboard" class="btn">🎯 Dashboard</a>
+            </div>
+            
+            <div class="footer">
+                <p>🚀 Powered by Singular Analytics Platform | Real-time Weather Intelligence</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return HTMLResponse(html_content)
+
+@app.get("/api/data/raw")
+async def get_weather_data_raw():
+    """
+    API endpoint to get current weather data as raw JSON
     """
     if cached_weather_data is None:
         raise HTTPException(status_code=503, detail="Weather data not available")
