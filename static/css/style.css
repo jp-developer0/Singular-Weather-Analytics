@@ -1,4 +1,4 @@
-/* Singular Weather Analytics - Clean CSS */
+/* Singular Weather Analytics CSS */
 
 * {
     margin: 0;
@@ -26,6 +26,31 @@ body {
     padding: 30px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
+}
+
+/* Chart page wrapper with light blue background for better text readability */
+.chart-page-wrapper {
+    background: rgba(173, 216, 230, 0.95); /* Light blue background */
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* Chart page header with darker text for better contrast */
+.chart-page-wrapper .header {
+    color: #2c3e50; /* Dark blue-gray for better readability on light blue */
+}
+
+.chart-page-wrapper .header h1,
+.chart-page-wrapper .header h2 {
+    color: #2c3e50;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+}
+
+/* Chart page footer with darker text */
+.chart-page-wrapper .footer {
+    color: #2c3e50;
 }
 
 /* Header styles */
