@@ -14,7 +14,9 @@ def main():
     print(f"Python version: {sys.version}")
     
     # Start the server using gunicorn with uvicorn workers
-    os.system(f'gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker --host 0.0.0.0 --port {port}')
+    cmd = f'gunicorn app:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:{port}'
+    print(f"Command: {cmd}")
+    os.system(cmd)
 
 if __name__ == "__main__":
     main() 

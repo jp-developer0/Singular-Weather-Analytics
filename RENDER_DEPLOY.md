@@ -29,16 +29,22 @@ This deployment configuration now works with both Python 3.11 and 3.13 by:
    - **Name**: `singular-weather-analytics`
    - **Environment**: `Python 3`
    - **Build Command**: `pip install --only-binary=all -r requirements.txt`
-   - **Start Command**: `gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker --host 0.0.0.0 --port $PORT`
+   - **Start Command**: `gunicorn app:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT`
    - **Instance Type**: `Free`
 
-#### Option 2: Using render.yaml (Updated)
+#### Option 2: Alternative Start Command (If Option 1 fails)
+Use this simpler start command:
+```
+uvicorn app:app --host 0.0.0.0 --port $PORT
+```
+
+#### Option 3: Using render.yaml (Updated)
 1. Update the `repo` URL in `render.yaml` to your GitHub repository
 2. Push to GitHub
 3. In Render Dashboard, click "New" → "Blueprint"
 4. Connect repository and deploy
 
-#### Option 3: Using start_server.py
+#### Option 4: Using start_server.py
 Use this start command instead:
 ```
 python start_server.py
@@ -55,6 +61,7 @@ python start_server.py
 2. **Pandas 2.2.3**: First version with full Python 3.13 compatibility
 3. **NumPy constraint**: `<2.0.0` for stability
 4. **Environment variables**: Force binary wheels, prevent compilation
+5. **Gunicorn command**: Fixed worker class syntax
 
 ### Local Testing
 ```bash
@@ -68,7 +75,7 @@ pip install -r requirements.txt
 python -m uvicorn app:app --host 0.0.0.0 --port 8000
 
 # Or test with gunicorn (production setup)
-gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker --host 0.0.0.0 --port 8000
+gunicorn app:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 ```
 
 ### Verification After Deployment
@@ -90,10 +97,17 @@ After deployment, verify these endpoints:
 - First pandas version with full Python 3.13 support
 - Released September 2024 specifically for Python 3.13
 
+#### FastAPI Worker Errors (TypeError: missing 'send' argument)
+✅ **FIXED**: Updated gunicorn command syntax
+- **Problem**: Using `-k` instead of `--worker-class`
+- **Solution**: `gunicorn app:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT`
+- **Alternative**: Use `uvicorn app:app --host 0.0.0.0 --port $PORT` for simpler setup
+
 #### App doesn't start
 - Check logs for port binding issues
-- Verify `gunicorn` startup command
+- Verify gunicorn startup command uses correct worker class
 - Use health check endpoint: `/health`
+- Try alternative uvicorn command
 
 #### Charts missing
 - App generates them on first run
@@ -104,6 +118,7 @@ After deployment, verify these endpoints:
 1. **Free Tier**: App may sleep after 15 minutes of inactivity
 2. **Startup Time**: ~30-60 seconds for weather data scraping
 3. **Binary Wheels**: Faster installs, no compilation needed
+4. **Workers**: 4 workers for better concurrency (adjust based on plan)
 
 ---
 
@@ -113,4 +128,6 @@ After deployment, verify these endpoints:
 - ✅ Python 3.13 compatibility fixed
 - ✅ Pandas compilation errors resolved
 - ✅ Binary-only installation configured
-- ✅ Environment verification script added 
+- ✅ Environment verification script added
+- ✅ Gunicorn worker class syntax corrected
+- ✅ Alternative uvicorn startup option added 
