@@ -381,7 +381,156 @@ async def get_weather_insights():
 @app.get("/charts/{chart_name}")
 async def get_chart(chart_name: str):
     """
-    Serve weather visualization charts
+    Serve weather visualization charts with navigation
+    """
+    if cached_charts is None or chart_name not in cached_charts:
+        raise HTTPException(status_code=404, detail="Chart not found")
+    
+    chart_path = cached_charts[chart_name]
+    
+    if not os.path.exists(chart_path):
+        raise HTTPException(status_code=404, detail="Chart file not found")
+    
+    # Chart titles mapping
+    chart_titles = {
+        "temperature_comparison": "📊 Temperature Comparison",
+        "humidity_wind_analysis": "💨 Humidity & Wind Analysis", 
+        "comprehensive_dashboard": "🎯 Comprehensive Dashboard"
+    }
+    
+    chart_title = chart_titles.get(chart_name, "📈 Weather Chart")
+    
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{chart_title} - Singular Weather Analytics</title>
+        <style>
+            * {{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }}
+            body {{
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                max-width: 1200px;
+                margin: 0 auto;
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 15px;
+                padding: 30px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            }}
+            .header {{
+                text-align: center;
+                margin-bottom: 30px;
+            }}
+            .header h1 {{
+                color: #667eea;
+                font-size: 2.5em;
+                margin-bottom: 10px;
+            }}
+            .navigation {{
+                margin-bottom: 30px;
+                text-align: center;
+            }}
+            .btn {{
+                display: inline-block;
+                padding: 12px 24px;
+                margin: 0 10px;
+                background: #667eea;
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: bold;
+                transition: all 0.3s ease;
+                border: none;
+                cursor: pointer;
+            }}
+            .btn:hover {{
+                background: #5a6fd8;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            }}
+            .btn.back {{
+                background: #6c757d;
+            }}
+            .btn.back:hover {{
+                background: #5a6268;
+                box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            }}
+            .chart-container {{
+                text-align: center;
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                margin-bottom: 30px;
+            }}
+            .chart-image {{
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }}
+            .chart-actions {{
+                margin-top: 20px;
+                text-align: center;
+            }}
+            .footer {{
+                text-align: center;
+                color: #666;
+                margin-top: 30px;
+                padding: 20px;
+                font-size: 0.9em;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🌤️ Singular Weather Analytics</h1>
+                <h2>{chart_title}</h2>
+            </div>
+            
+            <div class="navigation">
+                <a href="/" class="btn back">⬅️ Back to Dashboard</a>
+                <a href="/api/data" class="btn">📋 View Data</a>
+                <a href="/download/csv" class="btn">💾 Download CSV</a>
+            </div>
+            
+            <div class="chart-container">
+                <img src="/charts/raw/{chart_name}" alt="{chart_title}" class="chart-image">
+            </div>
+            
+            <div class="chart-actions">
+                <p><strong>Quick Navigation:</strong></p>
+                <a href="/charts/temperature_comparison" class="btn">📊 Temperature</a>
+                <a href="/charts/humidity_wind_analysis" class="btn">💨 Humidity & Wind</a>
+                <a href="/charts/comprehensive_dashboard" class="btn">🎯 Dashboard</a>
+            </div>
+            
+            <div class="footer">
+                <p>🚀 Powered by Singular Analytics Platform | Real-time Weather Intelligence</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return HTMLResponse(html_content)
+
+@app.get("/charts/raw/{chart_name}")
+async def get_raw_chart(chart_name: str):
+    """
+    Serve raw chart image files
     """
     if cached_charts is None or chart_name not in cached_charts:
         raise HTTPException(status_code=404, detail="Chart not found")
