@@ -4,7 +4,7 @@ Professional FastAPI application for weather data analytics and visualization
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
@@ -111,6 +111,7 @@ async def homepage(request: Request):
         <html>
         <head>
             <title>Singular Weather Analytics</title>
+            <link rel="icon" type="image/svg+xml" href="/favicon.ico">
             <style>
                 body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
                 .error { color: #e74c3c; }
@@ -132,6 +133,7 @@ async def homepage(request: Request):
         <title>Singular Weather Analytics Dashboard</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/svg+xml" href="/favicon.ico">
         <style>
             body {{
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -405,10 +407,11 @@ async def get_weather_data_page():
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>📋 Weather Data API - Singular Weather Analytics</title>
+         <head>
+         <meta charset="UTF-8">
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <title>📋 Weather Data API - Singular Weather Analytics</title>
+         <link rel="icon" type="image/svg+xml" href="/favicon.ico">
         <style>
             * {{
                 margin: 0;
@@ -648,6 +651,7 @@ async def get_chart(chart_name: str):
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{chart_title} - Singular Weather Analytics</title>
+        <link rel="icon" type="image/svg+xml" href="/favicon.ico">
         <style>
             * {{
                 margin: 0;
@@ -824,6 +828,7 @@ async def update_data_get(background_tasks: BackgroundTasks):
     <head>
         <title>Updating Weather Data</title>
         <meta http-equiv="refresh" content="3;url=/">
+        <link rel="icon" type="image/svg+xml" href="/favicon.ico">
         <style>
             body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
             .loading { color: #667eea; font-size: 1.2em; }
@@ -857,6 +862,25 @@ async def get_cities():
     Get list of monitored cities
     """
     return {"cities": config.CITIES}
+
+@app.get("/favicon.ico")
+async def favicon():
+    """
+    Serve favicon to prevent 404 errors
+    """
+    # Simple weather-themed favicon (cloud emoji as SVG)
+    favicon_svg = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <circle cx="30" cy="30" r="20" fill="#87CEEB" opacity="0.8"/>
+        <circle cx="50" cy="25" r="25" fill="#B0E0E6" opacity="0.9"/>
+        <circle cx="70" cy="30" r="18" fill="#87CEEB" opacity="0.8"/>
+        <ellipse cx="50" cy="45" rx="35" ry="15" fill="#E6F3FF"/>
+    </svg>"""
+    
+    return Response(
+        content=favicon_svg,
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "max-age=86400"}  # Cache for 24 hours
+    )
 
 if __name__ == "__main__":
     print("🌤️ Starting Singular Weather Analytics Server")
