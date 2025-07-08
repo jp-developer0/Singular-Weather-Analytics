@@ -184,10 +184,11 @@ class WeatherVisualizer:
         Returns:
             Path to the saved dashboard image
         """
-        fig = plt.figure(figsize=(20, 12))
+        fig = plt.figure(figsize=(24, 16))
         
-        # Create a grid layout
-        gs = fig.add_gridspec(3, 4, hspace=0.3, wspace=0.3)
+        # Create a grid layout with better spacing
+        gs = fig.add_gridspec(3, 4, hspace=0.45, wspace=0.35, 
+                             top=0.92, bottom=0.08, left=0.06, right=0.96)
         
         # Main temperature chart
         ax1 = fig.add_subplot(gs[0, :2])
@@ -227,17 +228,17 @@ class WeatherVisualizer:
         ax4.set_ylabel('Humidity (%)')
         ax4.set_title('Temperature vs Humidity (bubble size = wind speed)', fontweight='bold')
         
-        # Add city labels
+        # Add city labels with better positioning
         for i, city in enumerate(df['city']):
             ax4.annotate(city, (df['temperature_c'].iloc[i], df['humidity'].iloc[i]),
-                        xytext=(3, 3), textcoords='offset points', fontsize=8)
+                        xytext=(5, 5), textcoords='offset points', fontsize=9, 
+                        bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.7))
         
         # Key insights text box
         ax5 = fig.add_subplot(gs[1, 2:])
         ax5.axis('off')
         
-        insights_text = f"""
-KEY WEATHER INSIGHTS
+        insights_text = f"""KEY WEATHER INSIGHTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 🌡️  TEMPERATURE ANALYSIS
@@ -257,12 +258,11 @@ KEY WEATHER INSIGHTS
 
 📊 DATA QUALITY
    Cities Analyzed: {insights['total_cities']}
-   Collection Time: {insights['data_collection_time'][:19]}
-        """
+   Collection Time: {insights['data_collection_time'][:16]}"""
         
-        ax5.text(0.05, 0.95, insights_text, transform=ax5.transAxes, fontsize=11,
+        ax5.text(0.02, 0.98, insights_text, transform=ax5.transAxes, fontsize=10,
                 verticalalignment='top', fontfamily='monospace',
-                bbox=dict(boxstyle="round,pad=0.5", facecolor="lightblue", alpha=0.8))
+                bbox=dict(boxstyle="round,pad=0.6", facecolor="lightblue", alpha=0.9))
         
         # Bottom charts - distributions
         ax6 = fig.add_subplot(gs[2, 0])
@@ -295,19 +295,29 @@ KEY WEATHER INSIGHTS
         ]
         
         table = ax9.table(cellText=stats_data[1:], colLabels=stats_data[0],
-                         cellLoc='center', loc='center')
+                         cellLoc='center', loc='upper center')
         table.auto_set_font_size(False)
-        table.set_fontsize(9)
-        table.scale(1, 1.5)
-        ax9.set_title('Summary Statistics', fontweight='bold')
+        table.set_fontsize(10)
+        table.scale(1.1, 1.8)
         
-        # Main title
+        # Style the table
+        for i in range(len(stats_data)):
+            for j in range(len(stats_data[0])):
+                if i == 0:  # Header row
+                    table[(i, j)].set_facecolor('#667eea')
+                    table[(i, j)].set_text_props(weight='bold', color='white')
+                else:
+                    table[(i, j)].set_facecolor('#f8f9fa' if i % 2 == 0 else 'white')
+        
+        ax9.set_title('Summary Statistics', fontweight='bold', pad=20)
+        
+        # Main title with better positioning
         fig.suptitle('🌤️ Singular Weather Analytics Dashboard - Global Weather Intelligence', 
-                     fontsize=18, fontweight='bold', y=0.98)
+                     fontsize=20, fontweight='bold', y=0.97)
         
-        # Save dashboard
+        # Save dashboard with optimized settings
         dashboard_path = os.path.join(self.charts_dir, 'weather_dashboard.png')
-        plt.savefig(dashboard_path, bbox_inches='tight', dpi=self.dpi)
+        plt.savefig(dashboard_path, bbox_inches='tight', dpi=150, facecolor='white')
         plt.close()
         
         logger.info(f"Comprehensive weather dashboard saved to {dashboard_path}")
