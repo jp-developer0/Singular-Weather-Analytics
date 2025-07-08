@@ -3,11 +3,15 @@ services:
     name: singular-weather
     env: python
     repo: https://github.com/your-username/singular.git  # Update this to your actual repo URL
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --only-binary=all -r requirements.txt
     startCommand: gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker --host 0.0.0.0 --port $PORT
     plan: free
     envVars:
       - key: PORT
         value: 10000
       - key: PYTHON_VERSION
-        value: 3.11.9 
+        value: 3.11.10
+      - key: PIP_ONLY_BINARY
+        value: ":all:"
+      - key: PIP_NO_COMPILE
+        value: "1" 
